@@ -22,6 +22,7 @@ def set_config():
         kaist_latest_num = config.get('setting','kaist_latest_num')
         snu_latest_num = config.get('setting','snu_latest_num')
         chrome_driver_directory = config.get('setting','chrome_driver_directory')
+        
     except Exception as e:
         print('setting.ini 인자설정을 다시해주세요.')
         raise e
@@ -122,13 +123,26 @@ def send_message(my_token, latest_posts, friends_list, school):
                     'http://cse.snu.ac.kr/department-notices?c%5B%5D=40&c%5B%5D=107&keys=')
 
 def get_friends_list(my_token):
+    chat_id_list = []
+    chat_id_file = open("chat_id_list.txt","r")
+    for chat_id in chat_id_file:
+        chat_id_list.append(chat_id)
     bot = telegram.Bot(token = my_token)
-    friends_list = []
     updates = bot.getUpdates()
     for update in updates:
-        friends_list.append(update.message['chat']['id'])
-    print(friends_list)
-    return set(friends_list)
+        chat_id_list.append(update.message['chat']['id'])
+    chat_id_file.close()
+    return set(chat_id_list)
+
+def set_friends_list(chat_id_list):
+    try:
+        chat_id_file = open("chat_id_list.txt","w")
+        for chat_id in chat_id_list:
+            chat_id_file.write(str(chat_id)+"\n")
+        chat_id_file.close()
+    except Exception as e:
+        raise e
+    return True
 
 def main():
     set_config() # 설정파일 읽기
@@ -148,6 +162,7 @@ def main():
     with open('config.ini','w') as configfile:
         config.write(configfile) # config파일에 저장
 
+    set_friends_list(friends_list) 
 #    display.stop()
 
 if __name__ == '__main__':
