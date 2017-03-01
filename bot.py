@@ -1,7 +1,7 @@
 import telegram
 import configparser
 from selenium import webdriver
-#from pyvirtualdisplay import Display
+from pyvirtualdisplay import Display
 
 
 kaist_url = 'https://cs.kaist.ac.kr/board/list?menu=175&bbs_id=recruit'
@@ -11,7 +11,7 @@ def set_config():
     try:
         global config
         config = configparser.ConfigParser()
-        config.read('config.ini')
+        config.read('/home/dbgustlr92/Telegram_job_alarm_bot/config.ini')
     except Exception as e:
         print('이 파일과 같은 위치에 config.ini파일을 위치시켜주세요.')
         raise e
@@ -124,7 +124,7 @@ def send_message(my_token, latest_posts, friends_list, school):
 
 def get_friends_list(my_token):
     chat_id_list = []
-    chat_id_file = open("chat_id_list.txt","r")
+    chat_id_file = open("/home/dbgustlr92/Telegram_job_alarm_bot/chat_id_list.txt","r")
     for chat_id in chat_id_file:
         chat_id_list.append(chat_id)
     bot = telegram.Bot(token = my_token)
@@ -147,8 +147,8 @@ def set_friends_list(chat_id_list):
 def main():
     set_config() # 설정파일 읽기
 
-#    display = Display(visible=0, size=(800,600))
-#    display.start()
+    display = Display(visible=0, size=(800,600))
+    display.start()
 
     friends_list = get_friends_list(my_token)
     snu_latest_posts, snu_latest = get_latest_posts_snu(snu_latest_num) # 서울대학교 게시판 업데이트
@@ -163,7 +163,7 @@ def main():
         config.write(configfile) # config파일에 저장
 
     set_friends_list(friends_list) 
-#    display.stop()
+    display.stop()
 
 if __name__ == '__main__':
     main()
