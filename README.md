@@ -10,3 +10,6 @@
 
 # 봇 메세지 받는법
 텔레그램에서 @job_board_alarm 추가하고 아무 문자하나만 보내면 앞으로 알아서 보냅니다.
+
+# SnapShot
+![ScreenShot](screenshot.jpeg)
