@@ -69,7 +69,7 @@ def get_latest_posts_kaist(kaist_latest_num):
 
         post_title = post_row.find_element_by_xpath('./td[2]').text
         latest_list.append(post_title)
-        logger.info(post_title)
+        logging.info(post_title)
 
     chrome_driver.close()
     return latest_list, str(latest_num)
@@ -115,7 +115,7 @@ def get_latest_posts_snu(snu_latest_num):
 
 
 def send_message(bot_token, latest_posts, friends_list, school):
-    """
+    """ 
     역할 : 게시물 제목 리스트를 입력으로 받아 텔레그램으로 메세지 전송
     input
         - my_token : Telegram bot을 식별하는 토큰
@@ -127,19 +127,32 @@ def send_message(bot_token, latest_posts, friends_list, school):
     if school == 'kaist':
         for friend in friends_list:
             if len(latest_posts) == 0:
-                bot.sendMessage(chat_id=friend, text='[KAIST]\n새로올라온 게시글이 없습니다.')
+                try:
+                    bot.sendMessage(chat_id=friend, text='[KAIST]\n새로올라온 게시글이 없습니다.')
+                except Exception as e:
+                    logging.error(e + ' chat_id is ' + chat_id)
             else :
                 for post in latest_posts:
-                    bot.sendMessage(chat_id=friend, text='[KAIST]\n' + post + '\n' +\
-                    'https://cs.kaist.ac.kr/board/list?menu=175&bbs_id=recruit')
+                    try:
+                        bot.sendMessage(chat_id=friend, text='[KAIST]\n' + post + '\n' +\
+                        'https://cs.kaist.ac.kr/board/list?menu=175&bbs_id=recruit')
+                    except Exception as e:
+                        logging.error(e + ' chat_id is ' + chat_id)
+    
     elif school == 'snu':
         for friend in friends_list:
             if len(latest_posts) == 0:
-                bot.sendMessage(chat_id=friend, text='[SNU]\n새로올라온 게시글이 없습니다.')
+                try:
+                    bot.sendMessage(chat_id=friend, text='[SNU]\n새로올라온 게시글이 없습니다.')
+                except Exception as e:
+                    logging.error(e + ' chat_id is ' + chat_id)
             else:
                 for post in latest_posts:
-                    bot.sendMessage(chat_id=friend, text='[SNU]\n' + post + '\n' +\
-                    'http://cse.snu.ac.kr/department-notices?c%5B%5D=40&c%5B%5D=107&keys=')
+                    try:
+                        bot.sendMessage(chat_id=friend, text='[SNU]\n' + post + '\n' +\
+                        'http://cse.snu.ac.kr/department-notices?c%5B%5D=40&c%5B%5D=107&keys=')
+                    except Exception as e:
+                        logging.error(e + ' chat_id is ' + chat_id)
 
 def get_friends_list(bot_token):
     """
@@ -159,19 +172,21 @@ def get_friends_list(bot_token):
         raise e
 
     for chat_id in chat_id_file:
-        chat_id_list.append(chat_id)
+        chat_id_list.append(str(chat_id).rstrip())
     
     try:
         bot = telegram.Bot(token = bot_token)
         updates = bot.getUpdates()
         for update in updates:
-            chat_id_list.append(update.message['chat']['id'])
+            chat_id = str(update.message['chat']['id'])
+            user_name = str(update.message['chat']['first_name']) + ' ' + str(update.message['chat']['last_name'])
+            logging.info('add new user ' + user_name + ' chat_id : ' + chat_id)
+            chat_id_list.append(chat_id)
     except Exception as e:
-        logger.error(e)
+        logging.error(e)
         raise e
 
     chat_id_file.close()
-
     return set(chat_id_list) # 중복된 Chat ID가 있을 수 있으므로 SET으로 제거
 
 def set_friends_list(chat_id_list):
